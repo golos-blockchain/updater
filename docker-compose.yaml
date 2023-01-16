@@ -1,0 +1,11 @@
+version: "3"
+services:
+
+  updater:
+    image: golosblockchain/updater:latest
+    restart: always
+    build: .    
+    volumes:
+      - ./files:/var/app/files
+    ports:
+      - "3000:3000"

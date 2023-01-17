@@ -5,11 +5,17 @@ import git from 'git-rev-sync'
 import semver from 'semver'
 import serveIndex from 'serve-index'
 
+import { createHtmlRender } from './render.mjs'
+
 const app = express()
 
 app.use(express.json())
 
-app.use('/', express.static('files'), serveIndex('files', { view: 'details', icons: true }))
+app.use('/', express.static('files'), serveIndex('files', {
+    view: 'details',
+    icons: true,
+    template: createHtmlRender()
+}))
 
 function listApps() {
     let apps = {}

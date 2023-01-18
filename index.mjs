@@ -61,9 +61,11 @@ function getAppVersions(name, platform, after = null, latest = false) {
         .filter(dirent => dirent.isFile())
         .map(dirent => dirent.name)
     for (let file of files) {
-        const [ productName, _rest ] = file.split('-')
-        if (!_rest) continue
-        const verParts = _rest.split('.')
+        const parts = file.split('-')
+        if (parts.length < 2) continue
+        const verExt = parts.pop()
+
+        const verParts = verExt.split('.')
         const ext = verParts.pop()
         let curVer = verParts.join('.')
         if (verParts.length === 2) {

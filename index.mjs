@@ -17,6 +17,8 @@ app.use('/', express.static('files'), serveIndex('files', {
     template: createHtmlRender()
 }))
 
+const downloadTmpl = fs.readFileSync('template.html', 'utf-8')
+
 function listApps() {
     let apps = {}
     const dirs = fs.readdirSync('files', { withFileTypes: true })
@@ -85,6 +87,7 @@ function getAppVersions(name, platform, after = null, latest = false) {
             versions[curVer].exe = file
             versions[curVer].exe_url = '/api/exe/' + url
         }
+        versions[curVer].html_url = '/api/html/' + url
         latestVersion = { [curVer]: versions[curVer] }
     }
     if (latest) {
@@ -145,6 +148,22 @@ app.get('/api/:app/:platform?', tryCatch(async (req, res) => {
     })
 }))
 
+function renderHtml(res, data, app, platform, version) {
+    let htmlStr = downloadTmpl
+    htmlStr = htmlStr.split('{$TITLE}').join('GOLOS ' + app + ' - ' + version)
+    if (data[version].exe_url) {
+        htmlStr = htmlStr.split('{$EXE_URL}').join(data[version].exe_url)
+    }
+    if (data[version].txt_url) {
+        htmlStr = htmlStr.split('{$TXT_URL}').join(data[version].txt_url)
+    } else {
+        htmlStr = htmlStr.split('{$TXT_URL}').join('')
+    }
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.send(htmlStr)
+}
+
 async function getSpecific(req, res, what) {
     const { app, platform, version} = req.params
     const data = getAppVersions(app, platform)
@@ -153,6 +172,8 @@ async function getSpecific(req, res, what) {
         if (data[version]) {
             if (data[version][what])  {
                 res.redirect(307, dir + '/' + data[version][what])
+            } else if (what === 'html' && data[version].html_url) {
+                renderHtml(res, data, app, platform, version)
             } else {
                 throw new Error('No such ' + what + ' ' + version + ' of ' + app + '-' + platform)
             }
@@ -163,6 +184,10 @@ async function getSpecific(req, res, what) {
         const entries = Object.entries(data)
         if (!entries.length) {
             throw new Error('No latest ' + what + ' of ' + app + '-' + platform)
+        }
+        if (what === 'html') {
+            res.redirect(307, entries[entries.length - 1][1].html_url)
+            return
         }
         res.redirect(307, dir + '/' + entries[entries.length - 1][1][what])
     }
@@ -180,6 +205,13 @@ app.get('/api/txt/:app/:version', tryCatch(async (req, res) => {
 }))
 app.get('/api/txt/:app/:platform/:version', tryCatch(async (req, res) => {
     await getSpecific(req, res, 'txt')
+}))
+
+app.get('/api/html/:app/:version', tryCatch(async (req, res) => {
+    await getSpecific(req, res, 'html')
+}))
+app.get('/api/html/:app/:platform/:version', tryCatch(async (req, res) => {
+    await getSpecific(req, res, 'html')
 }))
 
 app.use((err, req, res, next) => {

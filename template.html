@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+        Golos Update
+    </title>
+</head>
+<body>
+    <div style="padding: 1rem;">
+        <h2>{$TITLE}</h2>
+        <hr>
+        <div id="txt" style="white-space: pre-line;">...</div>
+        <div>
+            <a href="{$EXE_URL}">
+                <button type="button" class="button" style="margin-top: 1rem;">Скачать</button>
+            </a>
+        </div>
+    </div>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&subset=cyrillic,cyrillic-ext">
+    <style>
+        body {
+            font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+            font-weight: normal;
+            line-height: 1.6;
+        }
+        h2 {
+            font-size: 1.25rem;
+
+            line-height: 1.4;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+
+            font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+            font-style: normal;
+            font-weight: normal;
+            color: inherit;
+            text-rendering: optimizeLegibility;
+        }
+        @media print, screen and (min-width: 40em) {
+            h2 {
+                font-size: 2.5rem;
+            }
+        }
+        hr {
+            clear: both;
+            max-width: 75rem;
+            height: 0;
+            margin: 1.25rem auto;
+            border-top: 0;
+            border-right: 0;
+            border-bottom: 1px solid #cacaca;
+            border-left: 0;
+        }
+        .button {
+            text-align: center;
+            font-weight: bold;
+
+            text-transform: uppercase;
+
+            background-color: #0078C4;
+            color: #fefefe;
+
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 0 1rem 0;
+            margin-top: 0px;
+            margin-right: 0px;
+            padding: 0.85em 1em;
+            border: 1px solid transparent;
+            border-radius: 100px;
+            -webkit-transition: background-color 0.25s ease-out, color 0.25s ease-out;
+            transition: background-color 0.25s ease-out, color 0.25s ease-out;
+            font-family: "Roboto";
+            font-size: 0.9rem;
+            -webkit-appearance: none;
+            line-height: 1;
+            text-align: center;
+            cursor: pointer;
+        }
+        .button:hover, .button:focus {
+            background-color: rgb(0, 102, 167);
+        }
+    </style>
+    <script>
+    async function loadTxt() {
+        let res
+        if (!'{$TXT_URL}') {
+            res = ''
+        } else {
+            try {
+                const decoder = new TextDecoder('windows-1251')
+                res = await fetch('{$TXT_URL}')
+                res = decoder.decode(await res.arrayBuffer())
+            } catch (err) {
+                console.error(err)
+                res = err.toString()
+            }
+        }
+        document.getElementById('txt').textContent = res
+    }
+    loadTxt()
+    </script>
+</body>
+</html>
